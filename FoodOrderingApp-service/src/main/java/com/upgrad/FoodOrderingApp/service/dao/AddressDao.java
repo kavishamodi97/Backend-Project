@@ -12,9 +12,8 @@ public class AddressDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-
-    public AddressEntity saveAddress(AddressEntity addressEntity) {
-        entityManager.merge(addressEntity);
+    public AddressEntity createCustomerAddress(final AddressEntity addressEntity) {
+        entityManager.persist(addressEntity);
         return addressEntity;
     }
 }

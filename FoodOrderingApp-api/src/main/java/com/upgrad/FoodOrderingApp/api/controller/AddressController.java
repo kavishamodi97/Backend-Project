@@ -1,8 +1,7 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
 import com.upgrad.FoodOrderingApp.api.common.Utility;
-import com.upgrad.FoodOrderingApp.api.model.SaveAddressRequest;
-import com.upgrad.FoodOrderingApp.api.model.SaveAddressResponse;
+import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.AddressService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
@@ -17,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -57,4 +58,29 @@ public class AddressController {
 
         return new ResponseEntity<SaveAddressResponse>(saveAddressResponse, HttpStatus.CREATED);
     }
+
+    @CrossOrigin
+    @RequestMapping(path = "address/customer", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AddressListResponse> getAllSavedAddresses(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+        final AddressListResponse addressListResponse = new AddressListResponse();
+        final String accessToken = Utility.getAccessTokenFromAuthorization(authorization);
+        CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+        final List<AddressEntity> addressEntityList = addressService.getAllAddress(customerEntity);
+
+        if (!addressEntityList.isEmpty()) {
+            for (AddressEntity addressEntity : addressEntityList) {
+                AddressList addressResponseList = new AddressList().id(UUID.fromString(addressEntity.getUuid()))
+                        .flatBuildingName(addressEntity.getFlatBuilNo())
+                        .city(addressEntity.getCity()).pincode(addressEntity.getPincode())
+                        .locality(addressEntity.getLocality())
+                        .state(new AddressListState().id(UUID.fromString(addressEntity.getState().getUuid())).stateName(addressEntity.getState().getState_name()));
+                addressListResponse.addAddressesItem(addressResponseList);
+            }
+        } else {
+            List<AddressList> addresses = Collections.emptyList();
+            addressListResponse.addresses(addresses);
+        }
+        return new ResponseEntity<AddressListResponse>(addressListResponse, HttpStatus.OK);
+    }
 }
+

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Service
@@ -32,9 +34,12 @@ public class AddressService {
     public AddressEntity saveAddress(
             final AddressEntity addressEntity, final CustomerEntity customerEntity)
             throws SaveAddressException {
-        if (addressEntity.getActive() != null && addressEntity.getPincode() != null && addressEntity.getCity() != null && addressEntity.getFlatBuilNo() != null && addressEntity.getLocality() != null
+        if (addressEntity.getActive() != null && addressEntity.getLocality() != null && !addressEntity.getLocality().isEmpty() && addressEntity.getCity() != null && !addressEntity.getCity().isEmpty() && addressEntity.getFlatBuilNo() != null
+                && !addressEntity.getFlatBuilNo().isEmpty()
+                && addressEntity.getPincode() != null
+                && !addressEntity.getPincode().isEmpty()
                 && addressEntity.getState() != null) {
-            if (!isValidPincode(addressEntity.getPincode())) {
+            if (!isValidPinCode(addressEntity.getPincode())) {
                 throw new SaveAddressException("SAR-002", "Invalid pincode");
             }
             AddressEntity SaveCustomerAddress = addressDao.createCustomerAddress(addressEntity);
@@ -48,7 +53,18 @@ public class AddressService {
         }
     }
 
-    private boolean isValidPincode(final String pincode) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<AddressEntity> getAllAddress(final CustomerEntity customerEntity) {
+        List<AddressEntity> getAddressEntityList = new ArrayList<>();
+        List<CustomerAddressEntity> customerAddressEntityList = addressDao.getCustomerAddressByCustomer(customerEntity);
+        if (customerAddressEntityList != null || !customerAddressEntityList.isEmpty()) {
+            customerAddressEntityList.forEach(customerAddressEntity -> getAddressEntityList.add(customerAddressEntity.getAddress()));
+        }
+        return getAddressEntityList;
+    }
+
+
+    private boolean isValidPinCode(final String pincode) {
         Pattern digitPattern = Pattern.compile("\\d{6}");
         return digitPattern.matcher(pincode).matches();
     }

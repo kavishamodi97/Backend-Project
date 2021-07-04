@@ -2,9 +2,11 @@ package com.upgrad.FoodOrderingApp.service.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name="customer")
+@Table(name = "customer")
 @NamedQueries({
         @NamedQuery(name = "customerByContactNumber", query = "select c from CustomerEntity c where c.contactNumber = :contact_number"),
 })
@@ -43,7 +45,11 @@ public class CustomerEntity {
     @Size(max = 255)
     private String salt;
 
-    public CustomerEntity(){
+    @OneToMany
+    @JoinTable(name = "customer_address", joinColumns = @JoinColumn(name = "customer_id"), inverseJoinColumns = @JoinColumn(name = "address_id"))
+    private List<AddressEntity> addresses = new ArrayList<>();
+
+    public CustomerEntity() {
 
     }
 
@@ -118,6 +124,14 @@ public class CustomerEntity {
 
     public void setSalt(String salt) {
         this.salt = salt;
+    }
+
+    public List<AddressEntity> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressEntity> addresses) {
+        this.addresses = addresses;
     }
 
     @Override

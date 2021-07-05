@@ -67,8 +67,13 @@ public class AddressService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public AddressEntity deleteAddress(final AddressEntity addressEntity) {
-        addressEntity.setActive(0);
         return addressDao.deleteAddress(addressEntity);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<StateEntity> getAllStates() {
+        List<StateEntity> stateEntityList = stateDao.getAllStates();
+        return stateEntityList;
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

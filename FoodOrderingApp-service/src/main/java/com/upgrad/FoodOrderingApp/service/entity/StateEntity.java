@@ -14,6 +14,7 @@ import java.io.Serializable;
 @Table(name = "state")
 @NamedQueries({
         @NamedQuery(name = "StateByUuid", query = "select s from StateEntity s where s.uuid = :uuid"),
+        @NamedQuery(name = "getAllStates", query = "select  s from StateEntity  s")
 })
 public class StateEntity implements Serializable {
 
@@ -29,9 +30,14 @@ public class StateEntity implements Serializable {
 
     @Column(name = "state_name")
     @Size(max = 30)
-    private String state_name;
+    private String stateName;
 
     public StateEntity() {
+    }
+
+    public StateEntity(String uuid, String stateName) {
+        this.uuid = uuid;
+        this.stateName = stateName;
     }
 
     public Integer getId() {
@@ -50,12 +56,12 @@ public class StateEntity implements Serializable {
         this.uuid = uuid;
     }
 
-    public String getState_name() {
-        return state_name;
+    public String getStateName() {
+        return stateName;
     }
 
-    public void setState_name(String state_name) {
-        this.state_name = state_name;
+    public void setStateName(String stateName) {
+        this.stateName = stateName;
     }
 
     @Override

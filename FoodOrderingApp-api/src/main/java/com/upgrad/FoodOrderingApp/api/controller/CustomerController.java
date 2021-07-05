@@ -1,5 +1,6 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
+import com.upgrad.FoodOrderingApp.api.common.Utility;
 import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
@@ -89,19 +90,11 @@ public class CustomerController {
         return new ResponseEntity<LoginResponse>(loginResponse, headers, HttpStatus.OK);
     }
 
-    public static String getAccessTokenFromAuthorization(String authorization)
-            throws AuthorizationFailedException {
-        String[] authParts = authorization.split("Bearer ");
-        if (authParts.length != 2) {
-            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
-        }
-        return authParts[1];
-    }
 
     @CrossOrigin
     @RequestMapping(path = "customer/logout", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<LogoutResponse> logout(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        final String accessToken = getAccessTokenFromAuthorization(authorization);
+        final String accessToken = Utility.getAccessTokenFromAuthorization(authorization);
         CustomerAuthEntity customerAuthEntity = customerService.logout(accessToken);
 
         LogoutResponse logoutResponse = new LogoutResponse().id(customerAuthEntity.getCustomer().getUuid()).message("LOGGED OUT SUCCESSFULLY");
@@ -117,7 +110,7 @@ public class CustomerController {
             throw new UpdateCustomerException("UCR-002", "First name field should not be empty");
         }
 
-        String accessToken = getAccessTokenFromAuthorization(authorization);
+        String accessToken = Utility.getAccessTokenFromAuthorization(authorization);
         CustomerEntity customerEntity = customerService.getCustomer(accessToken);
         customerEntity.setFirstName(updateCustomerRequest.getFirstName());
         customerEntity.setLastName(updateCustomerRequest.getLastName());
@@ -141,7 +134,7 @@ public class CustomerController {
         String newPassword = updatePasswordRequest.getNewPassword();
 
         if (oldPassword != null && newPassword != null) {
-            String accessToken = getAccessTokenFromAuthorization(authorization);
+            String accessToken = Utility.getAccessTokenFromAuthorization(authorization);
             CustomerEntity customerEntity = customerService.getCustomer(accessToken);
             CustomerEntity updatedCustomerEntity = customerService.updateCustomerPassword(oldPassword, newPassword, customerEntity);
 
@@ -155,5 +148,4 @@ public class CustomerController {
             throw new UpdateCustomerException("UCR-003", "No field should be empty");
         }
     }
-
 }

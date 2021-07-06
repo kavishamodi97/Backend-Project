@@ -32,19 +32,19 @@ public class AddressController {
 
     @CrossOrigin
     @RequestMapping(path = "address", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody SaveAddressRequest saveAddressRequest, @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AddressNotFoundException, SaveAddressException {
+    public ResponseEntity<SaveAddressResponse> saveAddress(@RequestBody(required = false) final SaveAddressRequest saveAddressRequest, @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AddressNotFoundException, SaveAddressException {
 
         final String accessToken = Utility.getAccessTokenFromAuthorization(authorization);
         CustomerEntity customerEntity = customerService.getCustomer(accessToken);
         AddressEntity addressEntity = new AddressEntity();
 
         if (saveAddressRequest != null) {
-            addressEntity.setActive(1);
             addressEntity.setUuid(UUID.randomUUID().toString());
             addressEntity.setCity(saveAddressRequest.getCity());
             addressEntity.setFlatBuilNo(saveAddressRequest.getFlatBuildingName());
             addressEntity.setLocality(saveAddressRequest.getLocality());
             addressEntity.setPincode(saveAddressRequest.getPincode());
+            addressEntity.setActive(1);
         }
         StateEntity stateEntity = addressService.getStateByUUID(saveAddressRequest.getStateUuid());
         addressEntity.setState(stateEntity);

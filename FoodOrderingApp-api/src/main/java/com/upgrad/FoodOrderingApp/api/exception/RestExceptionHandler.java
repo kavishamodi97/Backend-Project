@@ -32,15 +32,15 @@ public class RestExceptionHandler {
     }
 
     @ExceptionHandler(UpdateCustomerException.class)
-    public ResponseEntity<ErrorResponse> updateCustomerFailedException(UpdateCustomerException exe, WebRequest request) {
-        return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()),
+    public ResponseEntity<ErrorResponse> updateCustomerException(UpdateCustomerException exception, WebRequest request) {
+        return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
                 HttpStatus.BAD_REQUEST);
     }
-
+    
     @ExceptionHandler(SaveAddressException.class)
     public ResponseEntity<ErrorResponse> saveAddressException(SaveAddressException exe, WebRequest request) {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exe.getCode()).message(exe.getErrorMessage()),
-                HttpStatus.FORBIDDEN);
+                HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AddressNotFoundException.class)

@@ -31,7 +31,7 @@ public class CustomerService {
     private PasswordCryptographyProvider passwordCryptographyProvider;
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public CustomerEntity signupCustomer(CustomerEntity customer) throws SignUpRestrictedException {
+    public CustomerEntity saveCustomer(CustomerEntity customer) throws SignUpRestrictedException {
         /* Validation checks */
         if (isContactNumberExist(customer))
             throw new SignUpRestrictedException("SGR-001",

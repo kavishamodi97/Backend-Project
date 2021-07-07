@@ -1,13 +1,12 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
-import com.upgrad.FoodOrderingApp.api.model.RestaurantDetailsResponseAddress;
-import com.upgrad.FoodOrderingApp.api.model.RestaurantDetailsResponseAddressState;
-import com.upgrad.FoodOrderingApp.api.model.RestaurantList;
-import com.upgrad.FoodOrderingApp.api.model.RestaurantListResponse;
+import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CategoryService;
+import com.upgrad.FoodOrderingApp.service.businness.ItemService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
+import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
 import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
@@ -31,6 +30,9 @@ public class RestaurantController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ItemService itemService;
 
     @CrossOrigin
     @RequestMapping(method = RequestMethod.GET, path = "/restaurant", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -74,6 +76,17 @@ public class RestaurantController {
         }
     }
 
+    @CrossOrigin
+    @RequestMapping(method = RequestMethod.GET, path = "api/restaurant/{restaurant_id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<RestaurantDetailsResponse> getRestaurantsByRestaurantUuid(@PathVariable("restaurant_id") final String restaurantUuid) throws RestaurantNotFoundException {
+
+        RestaurantEntity restaurantEntity = restaurantService.restaurantByUuid(restaurantUuid);
+        RestaurantDetailsResponse restaurantDetailsResponse = createRestaurantDetailsResponse(restaurantEntity);
+        List<CategoryList> categories = getAllCategoryItemsInRestaurant(restaurantUuid);
+        restaurantDetailsResponse.setCategories(categories);
+        return new ResponseEntity<>(restaurantDetailsResponse, HttpStatus.OK);
+    }
+
     private List<RestaurantList> createRestaurantList(final List<RestaurantEntity> allRestaurants) {
         List<RestaurantList> allRestaurantsList = new ArrayList<>();
         for (RestaurantEntity restaurantEntity : allRestaurants) {
@@ -102,10 +115,30 @@ public class RestaurantController {
         return allRestaurantsList;
     }
 
+    private RestaurantDetailsResponse createRestaurantDetailsResponse(RestaurantEntity restaurantEntity) {
+
+        RestaurantDetailsResponse restaurantDetailsResponse = new RestaurantDetailsResponse();
+
+        restaurantDetailsResponse.setId(UUID.fromString(restaurantEntity.getUuid()));
+        RestaurantDetailsResponseAddress restaurantDetailsResponseAddress = createRestaurantDetailsResponseAddress(restaurantEntity.getAddress());
+        restaurantDetailsResponse.setAddress(restaurantDetailsResponseAddress);
+
+        restaurantDetailsResponse.setAveragePrice(restaurantEntity.getAveragePriceForTwo());
+        restaurantDetailsResponse.setCustomerRating(BigDecimal.valueOf(restaurantEntity.getCustomerRating()));
+        restaurantDetailsResponse.setNumberCustomersRated(restaurantEntity.getNumberOfCustomersRated());
+        restaurantDetailsResponse.setPhotoURL(restaurantEntity.getPhotoUrl());
+        restaurantDetailsResponse.setRestaurantName(restaurantEntity.getRestaurantName());
+        return restaurantDetailsResponse;
+    }
+
     private RestaurantDetailsResponseAddress createRestaurantDetailsResponseAddress(AddressEntity restaurantAddress) {
+
         RestaurantDetailsResponseAddress restaurantDetailsResponseAddress = new RestaurantDetailsResponseAddress();
+
         RestaurantDetailsResponseAddressState restaurantDetailsResponseAddressState = new RestaurantDetailsResponseAddressState();
+
         AddressEntity addressEntity = restaurantAddress;
+
         restaurantDetailsResponseAddress.setId(UUID.fromString(addressEntity.getUuid()));
         restaurantDetailsResponseAddress.setFlatBuildingName(addressEntity.getFlatBuilNo());
         restaurantDetailsResponseAddress.setCity(addressEntity.getCity());
@@ -114,6 +147,44 @@ public class RestaurantController {
         restaurantDetailsResponseAddressState.setId(UUID.fromString(addressEntity.getState().getUuid()));
         restaurantDetailsResponseAddressState.setStateName(addressEntity.getState().getStateName());
         restaurantDetailsResponseAddress.setState(restaurantDetailsResponseAddressState);
+
         return restaurantDetailsResponseAddress;
+    }
+
+    private List<CategoryList> getAllCategoryItemsInRestaurant(final String restaurantUuid) {
+        List<CategoryList> allCategoryItems = new ArrayList<>();
+        List<CategoryEntity> categories = categoryService.getCategoriesByRestaurant(restaurantUuid);
+
+        for (CategoryEntity category : categories) {
+            CategoryList categoryList = new CategoryList();
+            categoryList.setId(UUID.fromString(category.getUuid()));
+            categoryList.setCategoryName(category.getCategoryName());
+            List<ItemList> allItemsInCategory = getAllItemsInCategoryInRestaurant(restaurantUuid, category.getUuid());
+            categoryList.setItemList(allItemsInCategory);
+            allCategoryItems.add(categoryList);
+        }
+
+        return allCategoryItems;
+    }
+
+    private List<ItemList> getAllItemsInCategoryInRestaurant(
+            final String restaurantUuid, final String categoryUuid) {
+        List<ItemList> itemsInCategoryInRestaurant = new ArrayList<>();
+        List<ItemEntity> items = itemService.getItemsByCategoryAndRestaurant(restaurantUuid, categoryUuid);
+        for (ItemEntity item : items) {
+            ItemList itemList = new ItemList();
+            itemList.setId(UUID.fromString(item.getUuid()));
+            itemList.setItemName(item.getItemName());
+            itemList.setPrice(item.getPrice());
+            if (item.getType().equals("0")) {
+                itemList.setItemType(ItemList.ItemTypeEnum.valueOf("VEG"));
+            } else {
+                itemList.setItemType(ItemList.ItemTypeEnum.valueOf("NON_VEG"));
+            }
+
+            itemsInCategoryInRestaurant.add(itemList);
+        }
+
+        return itemsInCategoryInRestaurant;
     }
 }

@@ -35,14 +35,23 @@ public class RestaurantService {
     @Transactional(propagation = Propagation.REQUIRED)
     public List<RestaurantEntity> restaurantsByCategory(final String categoryUuid) throws CategoryNotFoundException {
 
-        if (categoryUuid == null || categoryUuid.isEmpty()) {
+        if (categoryUuid == null) {
             throw new CategoryNotFoundException("CNF-001", "Category id field should not be empty");
         }
         List<RestaurantEntity> restaurantCategoryByUuid = restaurantDao.getRestaurantsByCategoryUuid(categoryUuid);
 
-        if (restaurantCategoryByUuid.isEmpty()) {
+        if (restaurantCategoryByUuid == null) {
             throw new CategoryNotFoundException("CNF-002", "No category by this id");
         }
         return restaurantCategoryByUuid;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public RestaurantEntity restaurantByUuid(final String restaurantUuid) throws RestaurantNotFoundException {
+        RestaurantEntity restaurant = restaurantDao.getRestaurantByUuid(restaurantUuid);
+        if (restaurant == null) {
+            throw new RestaurantNotFoundException("RNF-001", "No restaurant by this id");
+        }
+        return restaurant;
     }
 }

@@ -2,6 +2,8 @@ package com.upgrad.FoodOrderingApp.service.businness;
 
 import com.upgrad.FoodOrderingApp.service.dao.RestaurantDao;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
+import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -18,5 +20,29 @@ public class RestaurantService {
     @Transactional(propagation = Propagation.REQUIRED)
     public List<RestaurantEntity> restaurantsByRating() {
         return restaurantDao.restaurantsByRating();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<RestaurantEntity> restaurantsByName(final String restaurantName) throws RestaurantNotFoundException {
+
+        if (restaurantName == null || restaurantName.isEmpty()) {
+            throw new RestaurantNotFoundException("RNF-003", "Restaurant name field should not be empty");
+        }
+        List<RestaurantEntity> restaurantEntities = restaurantDao.getRestaurantsByName(restaurantName);
+        return restaurantEntities;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<RestaurantEntity> restaurantsByCategory(final String categoryUuid) throws CategoryNotFoundException {
+
+        if (categoryUuid == null || categoryUuid.isEmpty()) {
+            throw new CategoryNotFoundException("CNF-001", "Category id field should not be empty");
+        }
+        List<RestaurantEntity> restaurantCategoryByUuid = restaurantDao.getRestaurantsByCategoryUuid(categoryUuid);
+
+        if (restaurantCategoryByUuid.isEmpty()) {
+            throw new CategoryNotFoundException("CNF-002", "No category by this id");
+        }
+        return restaurantCategoryByUuid;
     }
 }

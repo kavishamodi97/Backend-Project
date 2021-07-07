@@ -16,4 +16,12 @@ public class RestaurantDao {
     public List<RestaurantEntity> restaurantsByRating() {
         return entityManager.createNamedQuery("restaurantsByRating", RestaurantEntity.class).getResultList();
     }
+
+    public List<RestaurantEntity> getRestaurantsByName(final String restaurantName) {
+        return entityManager.createNamedQuery("getRestaurantsByName", RestaurantEntity.class).setParameter("restaurantName", "%" + restaurantName + "%").getResultList();
+    }
+
+    public List<RestaurantEntity> getRestaurantsByCategoryUuid(final String categoryUuid) {
+        return entityManager.createNamedQuery("getRestaurantsByCategoryUuid", RestaurantEntity.class).setParameter("categoryUuid", categoryUuid).getResultList();
+    }
 }

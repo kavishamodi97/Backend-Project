@@ -21,4 +21,16 @@ public class CategoryDao {
             return null;
         }
     }
+
+    public List<CategoryEntity> getAllCategoriesOrderByCategoryName() {
+        return entityManager.createNamedQuery("getAllCategoriesOrderByCategoryName", CategoryEntity.class).getResultList();
+    }
+
+    public CategoryEntity getCategoryByUuid(final String categoryUuid) {
+        try {
+            return entityManager.createNamedQuery("getCategoryByUuid", CategoryEntity.class).setParameter("categoryUuid", categoryUuid).getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
 }

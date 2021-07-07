@@ -19,7 +19,7 @@ public class ItemDao {
         return entityManager.createNamedQuery("getAllItemsByCategoryAndRestaurant").setParameter("restaurantUuid", restaurantUuid).setParameter("categoryUuid", categoryUuid).getResultList();
     }
 
-    public List<ItemEntity> getTopFiveItems(final RestaurantEntity restaurantEntity) {
+    public List<ItemEntity> getTopFiveItemsOrdersByRestaurant(final RestaurantEntity restaurantEntity) {
         List<ItemEntity> items = entityManager.createNamedQuery("topFivePopularItemsByRestaurant", ItemEntity.class).setParameter(0, restaurantEntity.getId()).getResultList();
         if (items != null) {
             return items;

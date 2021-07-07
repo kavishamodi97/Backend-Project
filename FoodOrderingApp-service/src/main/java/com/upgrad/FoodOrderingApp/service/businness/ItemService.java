@@ -24,7 +24,7 @@ public class ItemService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public List<ItemEntity> getTopFiveItems(final RestaurantEntity restaurantEntity) {
-        List<ItemEntity> itemEntityList = itemDao.getTopFiveItems(restaurantEntity);
+        List<ItemEntity> itemEntityList = itemDao.getTopFiveItemsOrdersByRestaurant(restaurantEntity);
         return itemEntityList;
     }
 }

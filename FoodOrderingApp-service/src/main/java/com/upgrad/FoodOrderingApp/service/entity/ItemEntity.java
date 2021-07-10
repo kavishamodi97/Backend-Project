@@ -23,16 +23,15 @@ import java.io.Serializable;
         resultClass = ItemEntity.class)
 })
 @NamedQueries({
-        @NamedQuery(name = "itemByUUID", query = "select i from ItemEntity i where i.uuid=:itemUUID"),
         @NamedQuery(
                 name = "getAllItemsByCategoryAndRestaurant",
-                query =
-                        "select i from ItemEntity i  where i.id in (select ri.itemId from RestaurantItemEntity ri "
-                                + "inner join CategoryItemEntity ci on ri.itemId = ci.itemId "
-                                + "where ri.restaurantId = (select r.id from RestaurantEntity r where "
-                                + "r.uuid=:restaurantUuid) and ci.categoryId = "
-                                + "(select c.id from CategoryEntity c where c.uuid=:categoryUuid ) )"
-                                + "order by i.itemName asc")
+                query = "select i from ItemEntity i  where i.id in (select ri.itemId from RestaurantItemEntity ri "
+                        + "inner join CategoryItemEntity ci on ri.itemId = ci.itemId "
+                        + "where ri.restaurantId = (select r.id from RestaurantEntity r where "
+                        + "r.uuid=:restaurantUuid) and ci.categoryId = "
+                        + "(select c.id from CategoryEntity c where c.uuid=:categoryUuid ) )"
+                        + "order by i.itemName asc"),
+        @NamedQuery(name = "getItemUuid", query = "select i from ItemEntity i where i.uuid=:itemUuid"),
 })
 public class ItemEntity implements Serializable {
 
